@@ -9,7 +9,7 @@
     <description>Common classes for persistence based on JPA using Jakarta namespace</description>
     <properties>
         <!-- new Maven version management -->
-        <revision>1.0.0</revision>
+        <revision>1.1.0</revision>
         <sha1></sha1>
         <changelist></changelist>
         <!-- common Maven properties -->
@@ -20,29 +20,34 @@
         <jakartaee.version>10.0.0</jakartaee.version>
         <microprofile.version>5.0</microprofile.version>
         <!-- common logging dependencies -->
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.6</slf4j.version>
+        <log4j.version>2.20.0</log4j.version>
         <!-- common test dependencies -->
-        <junit.version>5.8.1</junit.version>
+        <junit.version>5.10.0</junit.version>
+        <assertj.version>3.24.2</assertj.version>
+        <restassured.version>5.3.2</restassured.version>
+        <jackson.version>2.15.3</jackson.version>
         <!-- pinning versions of common maven plugins -->
-        <maven.clean.plugin.version>3.1.0</maven.clean.plugin.version>
-        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
-        <maven.dependency.plugin.version>3.2.0</maven.dependency.plugin.version>
-        <maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
-        <maven.enforcer.plugin.version>3.0.0</maven.enforcer.plugin.version>
-        <maven.failsafe.plugin.version>3.0.0-M5</maven.failsafe.plugin.version>
-        <maven.flatten.plugin.version>1.2.7</maven.flatten.plugin.version>
-        <maven.install.plugin.version>3.0.0-M1</maven.install.plugin.version>
-        <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
-        <maven.resources.plugin.version>3.2.0</maven.resources.plugin.version>
-        <maven.site.plugin.version>3.9.1</maven.site.plugin.version>
-        <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
-        <maven.surefire.plugin.version>3.0.0-M5</maven.surefire.plugin.version>
+        <maven.clean.plugin.version>3.3.2</maven.clean.plugin.version>
+        <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
+        <maven.dependency.plugin.version>3.6.1</maven.dependency.plugin.version>
+        <maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
+        <maven.docker.plugin.version>0.43.4</maven.docker.plugin.version>
+        <maven.enforcer.plugin.version>3.4.1</maven.enforcer.plugin.version>
+        <maven.failsafe.plugin.version>3.2.1</maven.failsafe.plugin.version>
+        <maven.flatten.plugin.version>1.5.0</maven.flatten.plugin.version>
+        <maven.install.plugin.version>3.1.1</maven.install.plugin.version>
+        <maven.jacoco.plugin.version>0.8.11</maven.jacoco.plugin.version>
+        <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
+        <maven.owasp.plugin.version>8.4.2</maven.owasp.plugin.version>
+        <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
+        <maven.site.plugin.version>3.12.1</maven.site.plugin.version>
+        <maven.sonar.plugin.version>3.10.0.2594</maven.sonar.plugin.version>
+        <maven.source.plugin.version>3.3.0</maven.source.plugin.version>
+        <maven.surefire.plugin.version>3.2.1</maven.surefire.plugin.version>
+        <maven.war.plugin.version>3.4.0</maven.war.plugin.version>
         <!-- quality assurance properties -->
         <sonar.host.url>https://sonarqube.cloudtrain.aws.msgoat.eu</sonar.host.url>
-        <maven.sonar.plugin.version>3.9.0.2155</maven.sonar.plugin.version>
-        <maven.jacoco.plugin.version>0.8.7</maven.jacoco.plugin.version>
-        <jacoco.address>localhost</jacoco.address>
-        <jacoco.port>38089</jacoco.port>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -141,6 +146,11 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <parameters>true</parameters>
+                        <showDeprecation>true</showDeprecation>
+                        <showWarnings>true</showWarnings>
+                        <compilerArgs>
+                            <arg>-Xlint</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -203,6 +213,11 @@
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>${maven.sonar.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${maven.owasp.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -269,6 +284,53 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- create Jandex index for Quarkus CDI scanning -->
+            <plugin>
+                <groupId>org.jboss.jandex</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
+                        <goals>
+                            <goal>jandex</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- quality assurance plugins -->
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <executions>
+                    <execution>
+                        <id>run OWASP dependency check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <formats>
+                        <format>HTML</format>
+                        <format>JSON</format>
+                    </formats>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>run sonarqube</id>
+                        <goals>
+                            <goal>sonar</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <distributionManagement>
@@ -278,4 +340,30 @@
             <url>https://nexus.cloudtrain.aws.msgoat.eu/repository/cloudtrain-releases/</url>
         </repository>
     </distributionManagement>
+    <pluginRepositories>
+        <pluginRepository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+            <id>cloudtrain-maven-repository</id>
+            <name>msg Automotive CloudTrain Releases Repository</name>
+            <url>https://nexus.cloudtrain.aws.msgoat.eu/repository/cloudtrain-releases/</url>
+            <layout>default</layout>
+        </pluginRepository>
+    </pluginRepositories>
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+            <id>cloudtrain-maven-repository</id>
+            <name>msg Automotive CloudTrain Releases Repository</name>
+            <url>https://nexus.cloudtrain.aws.msgoat.eu/repository/cloudtrain-releases/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
 </project>
