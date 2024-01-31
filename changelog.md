@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Fixed
 
+## [1.2.0] - 2024-01-31
+### Changed
+- upgraded all dependencies
+- upgraded all plugins
+
 ## [1.1.0] - 2023-11-14
 ### Added
 - added OWASP dependency check
